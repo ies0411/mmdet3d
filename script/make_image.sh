@@ -13,7 +13,7 @@ done
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 DOCKER_DIR=${SOURCE_DIR}/docker
 
-IMAGE_NAME=mp3:cam_det
+IMAGE_NAME=mmdet3d
 
 
 

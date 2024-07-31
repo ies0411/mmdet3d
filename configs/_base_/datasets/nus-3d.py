@@ -20,7 +20,10 @@ class_names = [
 metainfo = dict(classes=class_names)
 
 dataset_type = "NuScenesDataset"
-data_root = "/mnt/nas3/Data/nuScenes/v1.0-mini/"
+# data_root = "/mnt/nas3/Data/nuScenes/v1.0-mini/"
+data_root = "/mnt/nas3/Data/nuScenes/v1.0-trainval/"
+
+
 # Input modality for nuScenes dataset, this is consistent with the submission
 # format which requires the information in input_modality.
 input_modality = dict(use_lidar=True, use_camera=False)

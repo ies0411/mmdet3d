@@ -21,31 +21,44 @@ from .grid_mask import GridMask
 class PETR(MVXTwoStageDetector):
     """PETR."""
 
-    def __init__(self,
-                 use_grid_mask=False,
-                 pts_voxel_layer=None,
-                 pts_middle_encoder=None,
-                 pts_fusion_layer=None,
-                 img_backbone=None,
-                 pts_backbone=None,
-                 img_neck=None,
-                 pts_neck=None,
-                 pts_bbox_head=None,
-                 img_roi_head=None,
-                 img_rpn_head=None,
-                 train_cfg=None,
-                 test_cfg=None,
-                 init_cfg=None,
-                 data_preprocessor=None,
-                 **kwargs):
-        super(PETR,
-              self).__init__(pts_voxel_layer, pts_middle_encoder,
-                             pts_fusion_layer, img_backbone, pts_backbone,
-                             img_neck, pts_neck, pts_bbox_head, img_roi_head,
-                             img_rpn_head, train_cfg, test_cfg, init_cfg,
-                             data_preprocessor)
+    def __init__(
+        self,
+        use_grid_mask=False,
+        pts_voxel_layer=None,
+        pts_middle_encoder=None,
+        pts_fusion_layer=None,
+        img_backbone=None,
+        pts_backbone=None,
+        img_neck=None,
+        pts_neck=None,
+        pts_bbox_head=None,
+        img_roi_head=None,
+        img_rpn_head=None,
+        train_cfg=None,
+        test_cfg=None,
+        init_cfg=None,
+        data_preprocessor=None,
+        **kwargs
+    ):
+        super(PETR, self).__init__(
+            pts_voxel_layer,
+            pts_middle_encoder,
+            pts_fusion_layer,
+            img_backbone,
+            pts_backbone,
+            img_neck,
+            pts_neck,
+            pts_bbox_head,
+            img_roi_head,
+            img_rpn_head,
+            train_cfg,
+            test_cfg,
+            init_cfg,
+            data_preprocessor,
+        )
         self.grid_mask = GridMask(
-            True, True, rotate=1, offset=False, ratio=0.5, mode=1, prob=0.7)
+            True, True, rotate=1, offset=False, ratio=0.5, mode=1, prob=0.7
+        )
         self.use_grid_mask = use_grid_mask
 
     def extract_img_feat(self, img, img_metas):
@@ -86,12 +99,9 @@ class PETR(MVXTwoStageDetector):
         img_feats = self.extract_img_feat(img, img_metas)
         return img_feats
 
-    def forward_pts_train(self,
-                          pts_feats,
-                          gt_bboxes_3d,
-                          gt_labels_3d,
-                          img_metas,
-                          gt_bboxes_ignore=None):
+    def forward_pts_train(
+        self, pts_feats, gt_bboxes_3d, gt_labels_3d, img_metas, gt_bboxes_ignore=None
+    ):
         """Forward function for point cloud branch.
 
         Args:
@@ -112,7 +122,7 @@ class PETR(MVXTwoStageDetector):
 
         return losses
 
-    def _forward(self, mode='loss', **kwargs):
+    def _forward(self, mode="loss", **kwargs):
         """Calls either forward_train or forward_test depending on whether
         return_loss=True.
 
@@ -123,23 +133,25 @@ class PETR(MVXTwoStageDetector):
         list[list[dict]]), with the outer list indicating test time
         augmentations.
         """
-        raise NotImplementedError('tensor mode is yet to add')
+        raise NotImplementedError("tensor mode is yet to add")
 
-    def loss(self,
-             inputs=None,
-             data_samples=None,
-             mode=None,
-             points=None,
-             img_metas=None,
-             gt_bboxes_3d=None,
-             gt_labels_3d=None,
-             gt_labels=None,
-             gt_bboxes=None,
-             img=None,
-             proposals=None,
-             gt_bboxes_ignore=None,
-             img_depth=None,
-             img_mask=None):
+    def loss(
+        self,
+        inputs=None,
+        data_samples=None,
+        mode=None,
+        points=None,
+        img_metas=None,
+        gt_bboxes_3d=None,
+        gt_labels_3d=None,
+        gt_labels=None,
+        gt_bboxes=None,
+        img=None,
+        proposals=None,
+        gt_bboxes_ignore=None,
+        img_depth=None,
+        img_mask=None,
+    ):
         """Forward training function.
 
         Args:
@@ -164,7 +176,7 @@ class PETR(MVXTwoStageDetector):
         Returns:
             dict: Losses of different branches.
         """
-        img = inputs['imgs']
+        img = inputs["imgs"]
         batch_img_metas = [ds.metainfo for ds in data_samples]
         batch_gt_instances_3d = [ds.gt_instances_3d for ds in data_samples]
         gt_bboxes_3d = [gt.bboxes_3d for gt in batch_gt_instances_3d]
@@ -176,19 +188,18 @@ class PETR(MVXTwoStageDetector):
         img_feats = self.extract_feat(img=img, img_metas=batch_img_metas)
 
         losses = dict()
-        losses_pts = self.forward_pts_train(img_feats, gt_bboxes_3d,
-                                            gt_labels_3d, batch_img_metas,
-                                            gt_bboxes_ignore)
+        losses_pts = self.forward_pts_train(
+            img_feats, gt_bboxes_3d, gt_labels_3d, batch_img_metas, gt_bboxes_ignore
+        )
         losses.update(losses_pts)
         return losses
 
     def predict(self, inputs=None, data_samples=None, mode=None, **kwargs):
-        img = inputs['imgs']
+        img = inputs["imgs"]
         batch_img_metas = [ds.metainfo for ds in data_samples]
-        for var, name in [(batch_img_metas, 'img_metas')]:
+        for var, name in [(batch_img_metas, "img_metas")]:
             if not isinstance(var, list):
-                raise TypeError('{} must be a list, but got {}'.format(
-                    name, type(var)))
+                raise TypeError("{} must be a list, but got {}".format(name, type(var)))
         img = [img] if img is None else img
 
         batch_img_metas = self.add_lidar2img(img, batch_img_metas)
@@ -196,8 +207,7 @@ class PETR(MVXTwoStageDetector):
         results_list_3d = self.simple_test(batch_img_metas, img, **kwargs)
 
         for i, data_sample in enumerate(data_samples):
-            results_list_3d_i = InstanceData(
-                metainfo=results_list_3d[i]['pts_bbox'])
+            results_list_3d_i = InstanceData(metainfo=results_list_3d[i]["pts_bbox"])
             data_sample.pred_instances_3d = results_list_3d_i
             data_sample.pred_instances = InstanceData()
 
@@ -206,8 +216,7 @@ class PETR(MVXTwoStageDetector):
     def simple_test_pts(self, x, img_metas, rescale=False):
         """Test function of point cloud branch."""
         outs = self.pts_bbox_head(x, img_metas)
-        bbox_list = self.pts_bbox_head.get_bboxes(
-            outs, img_metas, rescale=rescale)
+        bbox_list = self.pts_bbox_head.get_bboxes(outs, img_metas, rescale=rescale)
         bbox_results = [
             bbox3d2result(bboxes, scores, labels)
             for bboxes, scores, labels in bbox_list
@@ -221,7 +230,7 @@ class PETR(MVXTwoStageDetector):
         bbox_list = [dict() for i in range(len(img_metas))]
         bbox_pts = self.simple_test_pts(img_feats, img_metas, rescale=rescale)
         for result_dict, pts_bbox in zip(bbox_list, bbox_pts):
-            result_dict['pts_bbox'] = pts_bbox
+            result_dict["pts_bbox"] = pts_bbox
         return bbox_list
 
     def aug_test_pts(self, feats, img_metas, rescale=False):
@@ -232,8 +241,7 @@ class PETR(MVXTwoStageDetector):
                 feats_list_level.append(feats[i][j])
             feats_list.append(torch.stack(feats_list_level, -1).mean(-1))
         outs = self.pts_bbox_head(feats_list, img_metas)
-        bbox_list = self.pts_bbox_head.get_bboxes(
-            outs, img_metas, rescale=rescale)
+        bbox_list = self.pts_bbox_head.get_bboxes(outs, img_metas, rescale=rescale)
         bbox_results = [
             bbox3d2result(bboxes, scores, labels)
             for bboxes, scores, labels in bbox_list
@@ -247,7 +255,7 @@ class PETR(MVXTwoStageDetector):
         bbox_list = [dict() for i in range(len(img_metas))]
         bbox_pts = self.aug_test_pts(img_feats, img_metas, rescale)
         for result_dict, pts_bbox in zip(bbox_list, bbox_pts):
-            result_dict['pts_bbox'] = pts_bbox
+            result_dict["pts_bbox"] = pts_bbox
         return bbox_list
 
     # may need speed-up
@@ -263,20 +271,20 @@ class PETR(MVXTwoStageDetector):
         for meta in batch_input_metas:
             lidar2img_rts = []
             # obtain lidar to image transformation matrix
-            for i in range(len(meta['cam2img'])):
-                lidar2cam_rt = torch.tensor(meta['lidar2cam'][i]).double()
-                intrinsic = torch.tensor(meta['cam2img'][i]).double()
+            for i in range(len(meta["cam2img"])):
+                lidar2cam_rt = torch.tensor(meta["lidar2cam"][i]).double()
+                intrinsic = torch.tensor(meta["cam2img"][i]).double()
                 viewpad = torch.eye(4).double()
-                viewpad[:intrinsic.shape[0], :intrinsic.shape[1]] = intrinsic
-                lidar2img_rt = (viewpad @ lidar2cam_rt)
+                viewpad[: intrinsic.shape[0], : intrinsic.shape[1]] = intrinsic
+                lidar2img_rt = viewpad @ lidar2cam_rt
                 # The extrinsics mean the transformation from lidar to camera.
                 # If anyone want to use the extrinsics as sensor to lidar,
                 # please use np.linalg.inv(lidar2cam_rt.T)
                 # and modify the ResizeCropFlipImage
                 # and LoadMultiViewImageFromMultiSweepsFiles.
                 lidar2img_rts.append(lidar2img_rt)
-            meta['lidar2img'] = lidar2img_rts
-            img_shape = meta['img_shape'][:3]
-            meta['img_shape'] = [img_shape] * len(img[0])
+            meta["lidar2img"] = lidar2img_rts
+            img_shape = meta["img_shape"][:3]
+            meta["img_shape"] = [img_shape] * len(img[0])
 
         return batch_input_metas

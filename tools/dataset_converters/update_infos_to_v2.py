@@ -1222,7 +1222,7 @@ def parse_args():
     return args
 
 
-def update_pkl_infos(dataset, out_dir, pkl_path):
+def update_pkl_infos(dataset, out_dir, pkl_path, root_path=None):
     if dataset.lower() == "kitti":
         update_kitti_infos(pkl_path=pkl_path, out_dir=out_dir)
     elif dataset.lower() == "waymo":

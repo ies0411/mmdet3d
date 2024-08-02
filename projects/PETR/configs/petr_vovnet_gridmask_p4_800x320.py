@@ -140,8 +140,12 @@ model = dict(
     ),
 )
 
+# dataset_type = "NuScenesDataset"
+# data_root = "data/nuscenes/"
 dataset_type = "NuScenesDataset"
-data_root = "data/nuscenes/"
+# data_root = "/mnt/nas3/Data/nuScenes/v1.0-mini/"
+data_root = "/mnt/nas3/Data/nuScenes/v1.0-trainval/"
+
 backend_args = None
 
 db_sampler = dict(

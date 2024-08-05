@@ -13,6 +13,7 @@ GPUS_ARGS="--gpus all"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
+        -t|--type) TYPE="$2"; shift ;;
         --keep-alive) KEEP_ALIVE="true" ;;
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac

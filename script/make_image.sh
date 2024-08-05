@@ -3,7 +3,8 @@
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --nocache) NOCACHE="true" ;;
+        -t|--type) TYPE="$2"; shift ;;
+        # --nocache) NOCACHE="true" ;;
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
@@ -17,9 +18,8 @@ IMAGE_NAME=mmdet3d
 
 
 
-if [[ ${NOCACHE} == 'true' ]]
-then
-    DOCKER_BUILDKIT=1 docker build --build-arg CACHEBUST=$(date +%s) --no-cache -t ${IMAGE_NAME} ${DOCKER_DIR}
-else
-    DOCKER_BUILDKIT=1 docker build --build-arg CACHEBUST=$(date +%s) -t ${IMAGE_NAME} ${DOCKER_DIR}
+if [[ ${TYPE} == 'base' ]];then
+    DOCKER_BUILDKIT=1 docker build --build-arg CACHEBUST=$(date +%s) -f ./docker/Dockerfile.base --no-cache -t ${IMAGE_NAME} ${DOCKER_DIR}
+elif [[ ${TASK} == "streampetr" ]];then
+    DOCKER_BUILDKIT=1 docker build --build-arg CACHEBUST=$(date +%s) -f ./docker/Dockerfile.temporal --no-cache -t ${IMAGE_NAME} ${DOCKER_DIR}
 fi

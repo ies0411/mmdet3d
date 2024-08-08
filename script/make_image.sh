@@ -19,7 +19,9 @@ IMAGE_NAME=mmdet3d
 
 
 if [[ ${TYPE} == 'base' ]];then
+    IMAGE_NAME=mmdet3d:base
     DOCKER_BUILDKIT=1 docker build --build-arg CACHEBUST=$(date +%s) -f ./docker/Dockerfile.base --no-cache -t ${IMAGE_NAME} ${DOCKER_DIR}
 elif [[ ${TASK} == "streampetr" ]];then
+    IMAGE_NAME=mmdet3d:streampetr
     DOCKER_BUILDKIT=1 docker build --build-arg CACHEBUST=$(date +%s) -f ./docker/Dockerfile.temporal --no-cache -t ${IMAGE_NAME} ${DOCKER_DIR}
 fi
